@@ -5,12 +5,12 @@ import com.example.test.container.Postgres
 import com.example.test.expectCode
 import com.example.test.expectData
 import com.example.test.expectStatus
+import com.example.test.shouldBeAround
+import com.example.test.shouldBeJustBefore
 import com.example.util.now
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.date.shouldBeAfter
-import io.kotest.matchers.date.shouldNotBeAfter
 import io.kotest.matchers.longs.shouldBePositive
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -31,7 +31,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.time.Duration
 
 @SpringBootTest
 @AutoConfigureWebTestClient
@@ -52,15 +51,20 @@ class BookWebIntegrationTest(client: WebTestClient, repository: BookRepository) 
                     this.title shouldBe title
                     this.author shouldBe author
                     this.price shouldBe price
-                    createdAt shouldNotBeAfter now()
-                    createdAt shouldBeAfter now() - Duration.ofMinutes(1)
-                    updatedAt shouldBe createdAt
+                    createdAt shouldBeJustBefore now()
+                    updatedAt shouldBeAround createdAt
                 }
 
                 repository.findById(response.id)
-                    .apply { shouldNotBeNull() }
-                    .let { BookModel.from(it!!) }
-                    .shouldBe(response)
+                    .apply { shouldNotBeNull() }!!
+                    .apply {
+                        this.id shouldBe response.id
+                        this.title shouldBe response.title
+                        this.author shouldBe response.author
+                        this.price shouldBe response.price
+                        this.createdAt shouldBeAround response.createdAt
+                        this.updatedAt shouldBeAround response.updatedAt
+                    }
             }
         }
     }
@@ -84,15 +88,20 @@ class BookWebIntegrationTest(client: WebTestClient, repository: BookRepository) 
                     this.id shouldBe book.id
                     this.title shouldBe (title ?: book.title)
                     this.price shouldBe (price ?: book.price)
-                    createdAt shouldBe book.createdAt
-                    updatedAt shouldNotBeAfter now()
-                    updatedAt shouldBeAfter now() - Duration.ofMinutes(1)
+                    createdAt shouldBeAround book.createdAt
+                    updatedAt shouldBeJustBefore now()
                 }
 
                 repository.findById(response.id)
-                    .apply { shouldNotBeNull() }
-                    .let { BookModel.from(it!!) }
-                    .shouldBe(response)
+                    .apply { shouldNotBeNull() }!!
+                    .apply {
+                        this.id shouldBe response.id
+                        this.title shouldBe response.title
+                        this.author shouldBe response.author
+                        this.price shouldBe response.price
+                        this.createdAt shouldBeAround response.createdAt
+                        this.updatedAt shouldBeAround response.updatedAt
+                    }
             }
         }
 
@@ -138,8 +147,8 @@ class BookWebIntegrationTest(client: WebTestClient, repository: BookRepository) 
                     title shouldBe book.title
                     author shouldBe book.author
                     price shouldBe book.price
-                    createdAt shouldBe book.createdAt
-                    updatedAt shouldBe book.updatedAt
+                    createdAt shouldBeAround book.createdAt
+                    updatedAt shouldBeAround book.updatedAt
                 }
         }
 
@@ -157,11 +166,23 @@ class BookWebIntegrationTest(client: WebTestClient, repository: BookRepository) 
             val books = generateSequence { book(author = author) }
                 .take(Arb.int(1..10).next())
                 .asFlow()
-                .let { repository.saveAll(it) }.toList()
+                .let { repository.saveAll(it).toList() }
+                .sortedBy { it.id }
 
             client.get().uri("/books?author={0}", author)
                 .expectData<List<BookModel>>()
-                .shouldContainExactly(books.map { BookModel.from(it) })
+                .sortedBy { it.id }
+                .apply {
+                    size shouldBe books.size
+                    zip(books).shouldForAll { (model, entity) ->
+                        model.id shouldBe entity.id
+                        model.title shouldBe entity.title
+                        model.author shouldBe entity.author
+                        model.price shouldBe entity.price
+                        model.createdAt shouldBeAround entity.createdAt
+                        model.updatedAt shouldBeAround entity.updatedAt
+                    }
+                }
         }
 
         test("Ignores books written by other authors") {

@@ -18,7 +18,6 @@ dependencies {
     api("org.mock-server:mockserver-client-java")
 
     // This should be replaced with smaller dependencies in the future
-    compileOnly("org.springframework.boot:spring-boot-starter-webflux")
     compileOnly("org.springframework.boot:spring-boot-starter-data-r2dbc")
     compileOnly("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 }

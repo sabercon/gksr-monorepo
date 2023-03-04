@@ -1,10 +1,10 @@
 rootProject.name = "gksr"
 
 include(
-    "lib:util",
-    "lib:test",
-    "lib:r2dbc",
     "lib:mongo",
+    "lib:r2dbc",
+    "lib:test",
+    "lib:util",
     "lib:web",
     "lib:web3",
 )

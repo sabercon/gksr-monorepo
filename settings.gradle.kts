@@ -7,4 +7,6 @@ include(
     "lib:util",
     "lib:web",
     "lib:web3",
+
+    "app:demo",
 )

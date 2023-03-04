@@ -32,6 +32,7 @@ allprojects {
     dependencies {
         constraints {
             implementation("com.google.guava:guava:31.1-jre")
+            implementation("org.web3j:core:4.9.2")
 
             implementation("io.mockk:mockk:1.13.4")
             implementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")

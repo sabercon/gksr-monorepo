@@ -1,0 +1,23 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://postgres:postgres@localhost:5432/demo
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: demo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.example: debug
+    org.springframework.r2dbc: debug
+    org.springframework.data.mongodb: debug
+debug: true

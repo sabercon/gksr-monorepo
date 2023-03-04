@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.22"
-    kotlin("plugin.spring") version "1.7.22"
+    kotlin("jvm") version "1.8.10"
+    kotlin("plugin.spring") version "1.8.10"
     id("org.springframework.boot") version "3.0.3" apply false
     id("io.spring.dependency-management") version "1.1.0" apply false
 
@@ -41,7 +41,7 @@ allprojects {
 
         implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
         implementation(platform("io.kotest:kotest-bom:5.5.5"))
-        implementation(platform("org.testcontainers:testcontainers-bom:1.17.3"))
+        implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
 
         detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
     }

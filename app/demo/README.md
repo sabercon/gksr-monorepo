@@ -31,7 +31,7 @@ TODO: Add another resource stored in MongoDB.
 4. Start up the application with Gradle:
 
     ```bash
-    $ ../gradlew bootRun
+    $ ../../gradlew bootRun
     ```
 
 5. Visit [Actuator API](http://localhost:8080/actuator) in your browser, and you will see the application is alive.
